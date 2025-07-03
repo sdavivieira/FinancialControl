@@ -4,5 +4,6 @@
     {
         public string Name { get; set; }
         public decimal InicialValue { get; set; }
+        public bool IsFixed { get; set; }
     }
 }

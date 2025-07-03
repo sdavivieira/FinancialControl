@@ -27,6 +27,7 @@ namespace FinancialControl.Application.Service
                 {
                     Name = expense.Name,
                     InicialValue = expense.InicialValue,
+                    IsFixed = expense.IsFixed,
                 };
 
                 await _expenseTypeWriteRepository.Add(newexpense);
@@ -35,6 +36,7 @@ namespace FinancialControl.Application.Service
                 {
                     Name = expense.Name,
                     InicialValue = expense.InicialValue,
+                    IsFixed = expense.IsFixed
                 };
 
                 return new OperationResult<ExpenseTypeResponse>

@@ -21,7 +21,9 @@ namespace FinancialControl.Controllers
         [HttpPost("register")]
         public async Task<IActionResult>RegisterExpense(ExpenseRequest expense)
         {
-            OperationResult<ExpenseResponse> response = await _expenseService.Create(expense);
+            System.Security.Claims.ClaimsPrincipal user = HttpContext.User;
+            string email = user.FindFirst("email")?.Value;
+            OperationResult<ExpenseResponse> response = await _expenseService.Create(expense, email);
 
             return Ok(response);
         }

@@ -6,7 +6,7 @@ namespace FinancialControl.Application.Interface
 {
     public interface IExpenseService
     {
-        Task<OperationResult<ExpenseResponse>> Create(ExpenseRequest expense);
+        Task<OperationResult<ExpenseResponse>> Create(ExpenseRequest expense, string email);
         Task<OperationResult<IEnumerable<ExpenseResponse>>> Expenses();
     }
 }

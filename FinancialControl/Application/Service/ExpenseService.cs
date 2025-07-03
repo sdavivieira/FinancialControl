@@ -1,5 +1,6 @@
 ﻿using FinancialControl.Application.Interface;
 using FinancialControl.Domain.Interfaces.Expenses;
+using FinancialControl.Domain.Interfaces.Users;
 using FinancialControl.Domain.Models;
 using FinancialControl.ResponseRequest;
 using FinancialControl.ResponseRequest.Request.Expense;
@@ -11,22 +12,27 @@ namespace FinancialControl.Application.Service
     {
         private readonly IExpenseWriteRepository _expenseWriteRepository;
         private readonly IExpenseReadRepository _expenseReadRepository;
+        private readonly IUserReadRepository _userReadRepository;
         public ExpenseService(IExpenseWriteRepository expenseWriteRepository, 
-            IExpenseReadRepository expenseReadRepository)
+            IExpenseReadRepository expenseReadRepository,
+            IUserReadRepository userReadRepository)
         {
             _expenseWriteRepository = expenseWriteRepository;
             _expenseReadRepository = expenseReadRepository;
+            _userReadRepository = userReadRepository;
         }
-        public async Task<OperationResult<ExpenseResponse>> Create(ExpenseRequest expense)
+        public async Task<OperationResult<ExpenseResponse>> Create(ExpenseRequest expense, string email)
         {
             try
             {
+                IEnumerable<User> users = await _userReadRepository.GetAllAsync(x => x.Email == email);
+                var userExist = users.FirstOrDefault();
 
                 var newexpense = new Expense()
                 {
                     Date = expense.Date,
                     ExpenseTypeId = expense.ExpenseTypeId,
-
+                    UserId = userExist.Id
                 };
 
                 await _expenseWriteRepository.Add(newexpense);

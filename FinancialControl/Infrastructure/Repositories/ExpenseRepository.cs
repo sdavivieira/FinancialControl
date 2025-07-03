@@ -16,7 +16,7 @@ namespace FinancialControl.Infrastructure.Repositories
 
         public async Task<IEnumerable<Expense>> GetAllWithExpenseType()
         {
-           return await _context.Expense.Include(e => e.ExpenseType).ToListAsync();
+           return await _context.Expenses.Include(e => e.ExpenseType).ToListAsync();
         }
     }
 }
