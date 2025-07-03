@@ -4,7 +4,7 @@ using FinancialControl.Infrastructure.DbContext;
 
 namespace FinancialControl.Infrastructure.Repositories
 {
-    public class ExpenseTypeRepository : GenericRepository<Expense>, IExpenseTypeReadRepository, IExpenseTypeWriteRepository
+    public class ExpenseTypeRepository : GenericRepository<ExpenseType>, IExpenseTypeReadRepository, IExpenseTypeWriteRepository
     {
         public ExpenseTypeRepository(ApplicationDbContext context) : base(context)
         {

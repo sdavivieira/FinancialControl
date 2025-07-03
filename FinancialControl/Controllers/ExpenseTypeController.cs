@@ -9,19 +9,28 @@ namespace FinancialControl.Controllers
 {
     public class ExpenseTypeController : BaseControllerapi
     {
-        private readonly IExpenseService _expenseService;
+        private readonly IExpenseTypeService _expenseService;
 
-        public ExpenseTypeController(IExpenseService expenseService)
+        public ExpenseTypeController(IExpenseTypeService expenseService)
         {
             _expenseService = expenseService;
         }
 
         [Authorize]
-        [HttpPost("register")]
+        [HttpPost("registertype")]
         public async Task<IActionResult>ExpenseType(ExpenseTypeRequest expense)
         {
             OperationResult<ExpenseTypeResponse> response = await _expenseService.Create(expense);
             return Ok(response);
         }
+
+        [Authorize]
+        [HttpGet("types")]
+        public async Task<IActionResult> ExpenseTypes()
+        {
+            OperationResult<IEnumerable<ExpenseTypeResponse>> response = await _expenseService.ExpenseTypes();
+            return Ok(response);
+        }
+
     }
 }

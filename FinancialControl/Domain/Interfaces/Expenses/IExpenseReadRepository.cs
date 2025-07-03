@@ -3,7 +3,9 @@ using FinancialControl.Domain.Models;
 
 namespace FinancialControl.Domain.Interfaces.Expenses
 {
-    public interface IExpenseTypeWriteRepository : IWriteRepository<Expense>
+    public interface IExpenseReadRepository : IReadRepository<Expense>
     {
+        Task<IEnumerable<Expense>> GetAllWithExpenseType();
+
     }
 }

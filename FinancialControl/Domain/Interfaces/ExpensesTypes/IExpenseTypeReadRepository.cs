@@ -3,7 +3,7 @@ using FinancialControl.Domain.Models;
 
 namespace FinancialControl.Domain.Interfaces.Expenses
 {
-    public interface IExpenseTypeReadRepository : IReadRepository<Expense>
+    public interface IExpenseTypeReadRepository : IReadRepository<ExpenseType>
     {
     }
 }

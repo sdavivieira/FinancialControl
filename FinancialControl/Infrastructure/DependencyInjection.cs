@@ -21,12 +21,21 @@ namespace FinancialControl.Infrastructure
             services.AddScoped<IProfileWriteRepository, ProfileRepository>();
             services.AddScoped<IExpenseTypeReadRepository, ExpenseTypeRepository>();
             services.AddScoped<IExpenseTypeWriteRepository, ExpenseTypeRepository>();
+            services.AddScoped<IExpenseWriteRepository, ExpenseRepository>();
+            services.AddScoped<IExpenseReadRepository, ExpenseRepository>();
 
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IExpenseService, ExpenseService>();
+            services.AddScoped<IExpenseTypeService, ExpenseTypeService>();
 
             services.AddScoped<IReadRepository<User>, GenericRepository<User>>();
+            services.AddScoped<IWriteRepository<User>, GenericRepository<User>>();
+            services.AddScoped<IReadRepository<Profile>, GenericRepository<Profile>>();
             services.AddScoped<IWriteRepository<Profile>, GenericRepository<Profile>>();
+            services.AddScoped<IReadRepository<ExpenseType>, GenericRepository<ExpenseType>>();
+            services.AddScoped<IWriteRepository<ExpenseType>, GenericRepository<ExpenseType>>();
             services.AddScoped<IWriteRepository<Expense>, GenericRepository<Expense>>();
+            services.AddScoped<IReadRepository<Expense>, GenericRepository<Expense>>();
 
             return services;
         }

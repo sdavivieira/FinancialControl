@@ -11,6 +11,8 @@ namespace FinancialControl.Infrastructure.DbContext
         }
         public DbSet<User> Users { get; set; }
         public DbSet<Profile> Profile { get; set; }
+        public DbSet<Expense> Expense { get; set; }
+        public DbSet<ExpenseType> ExpenseType { get; set; }
     }
 
 }

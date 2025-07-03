@@ -3,5 +3,6 @@
     public class ExpenseTypeRequest
     {
         public string Name { get; set; }
+        public decimal InicialValue { get; set; }
     }
 }
