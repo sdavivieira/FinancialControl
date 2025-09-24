@@ -7,6 +7,7 @@ using FinancialControl.Domain.Interfaces.Profiles;
 using FinancialControl.Domain.Interfaces.Users;
 using FinancialControl.Domain.Models;
 using FinancialControl.Infrastructure.Repositories;
+using FinancialControl.ML;
 
 namespace FinancialControl.Infrastructure
 {
@@ -36,7 +37,7 @@ namespace FinancialControl.Infrastructure
             services.AddScoped<IWriteRepository<ExpenseType>, GenericRepository<ExpenseType>>();
             services.AddScoped<IWriteRepository<Expense>, GenericRepository<Expense>>();
             services.AddScoped<IReadRepository<Expense>, GenericRepository<Expense>>();
-
+            services.AddScoped<ExpenseModelTrainer, ExpenseModelTrainer>();
             return services;
         }
     }
