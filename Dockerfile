@@ -3,9 +3,9 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 8080
 
-# Criar usuário app e dar permissão na pasta /app
-RUN useradd -m app \
-    && chown -R app:app /app
+#  permissão na pasta /app
+RUN chown -R app:app /app
+
 
 # Fase build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
