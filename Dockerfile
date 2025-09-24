@@ -1,33 +1,40 @@
+# ============================================
 # Fase base (runtime)
+# ============================================
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
 EXPOSE 8080
 
-#  permissão na pasta /app
+# Ajustar permissões para o usuário app existente
 RUN chown -R app:app /app
 
-
+# ============================================
 # Fase build
+# ============================================
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 # Copiar csproj e restaurar dependências
 COPY ["FinancialControl/FinancialControl.csproj", "./"]
-RUN dotnet restore "./FinancialControl.csproj"
+RUN dotnet restore "./FinancialControl.csproj" --verbosity minimal
 
 # Copiar o restante do código
 COPY . .
 
-# Build do projeto (usando usuário root para evitar problemas de permissão)
-RUN dotnet build "./FinancialControl.csproj" -c $BUILD_CONFIGURATION -o /app/build
+# Build do projeto com log detalhado
+RUN dotnet build "./FinancialControl.csproj" -c $BUILD_CONFIGURATION -o /app/build /v:diag
 
+# ============================================
 # Publicação
+# ============================================
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./FinancialControl.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./FinancialControl.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false /v:diag
 
+# ============================================
 # Fase final (runtime)
+# ============================================
 FROM base AS final
 WORKDIR /app
 
