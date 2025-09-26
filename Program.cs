@@ -2,6 +2,7 @@ using FinancialControl.Infrastructure;
 using FinancialControl.Infrastructure.DbContext;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -39,11 +40,15 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 }); 
-builder.Services.DependencyInjectionServices();
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseInMemoryDatabase("FinancialControlDB"));
 
 var configuration = builder.Configuration;
+
+var connectionString = configuration.GetConnectionString("ConnectionPostgres");
+builder.Services.DependencyInjectionServices();
+
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(connectionString));
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
