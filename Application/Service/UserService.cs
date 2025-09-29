@@ -58,6 +58,15 @@ namespace FinancialControl.Application.Service
                     Name = newUser.Name,
                 };
 
+                if (!string.IsNullOrEmpty(response.Name))
+                {
+                    ProfileRequest profileByUser = new ProfileRequest();
+                    profileByUser.Name = response.Name;
+                    profileByUser.Email = response.Email;
+                    profileByUser.Salary = 0;
+                    await ProfileSave(profileByUser);
+                }
+
                 return new OperationResult<UserResponse>
                 {
                     Success = true,
