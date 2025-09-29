@@ -102,7 +102,7 @@ namespace FinancialControl.Application.Service
                 };
             }
 
-            var result = await _readprofilerepository.GetAllAsync(x => x.Id == userExist.Id );
+            var result = await _readprofilerepository.GetAllAsync(x => x.UserId == userExist.Id );
             var getresult = result.FirstOrDefault();
 
             if (getresult == null)
