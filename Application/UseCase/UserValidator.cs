@@ -1,8 +1,10 @@
 ﻿using FinancialControl.Application.Interface;
 using FinancialControl.Domain.Interfaces.Users;
+using FinancialControl.Domain.Models;
 using FinancialControl.ResponseRequest.Request.User;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace FinancialControl.Application.UseCase
@@ -16,19 +18,36 @@ namespace FinancialControl.Application.UseCase
             _config = config;
             _userReadRepository = userReadRepository;
         }
-        public async Task<string> GenerateJWT()
+        public async Task<string> GenerateJWT(LoginRequest user)
         {
+            var existingUser = await _userReadRepository.GetAllAsync(x => x.Email == user.Email);
+            var userLogin = existingUser.FirstOrDefault();
+
+            if (userLogin == null)
+                throw new Exception("Usuário não encontrado ou senha inválida");
+
             var issuer = _config["Jwt:Issuer"];
             var audience = _config["Jwt:Audience"];
-            var expiry = DateTime.Now.AddMinutes(120);
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-            var token = new JwtSecurityToken(issuer: issuer, audience: audience,
-            expires: DateTime.Now.AddMinutes(120), signingCredentials: credentials);
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var stringToken = tokenHandler.WriteToken(token);
-            return stringToken;
+
+            var claims = new[]
+            {
+                    new Claim(ClaimTypes.NameIdentifier, userLogin.Name),
+                    new Claim(ClaimTypes.Email, user.Email)
+                };
+
+            var token = new JwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
+                claims: claims,        
+                expires: DateTime.Now.AddMinutes(120),
+                signingCredentials: credentials
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
 
         public async Task<bool> IsValid(LoginRequest user)
         {

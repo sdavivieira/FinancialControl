@@ -97,7 +97,7 @@ app.Use(async (context, next) =>
 
     await next();
 });
-
+app.UseCors("AllowFrontendLocalhost");
 app.UseAuthentication();
 app.UseAuthorization();
 
