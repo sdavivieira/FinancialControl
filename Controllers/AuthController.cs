@@ -20,24 +20,22 @@ namespace FinancialControl.Controllers
         {
             bool result = await _userValidator.IsValid(user);
 
-            if (result)
-            {
-                var token = await _userValidator.GenerateJWT(user);
-                Response.Cookies.Append("jwt", token, new CookieOptions
-                {
-                    HttpOnly = true,
-                    Secure = true, 
-                    SameSite = SameSiteMode.None,
-                    Expires = DateTime.UtcNow.AddMinutes(120)
-                });
-
-                return Ok(new { message = "Login successful" });
-            }
-            else
-            {
+            if (!result)
                 return Unauthorized();
-            }
+
+            var token = await _userValidator.GenerateJWT(user);
+
+            Response.Cookies.Append("jwt", token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true, 
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddMinutes(120)
+            });
+
+            return Ok(new { token });
         }
+
 
         [HttpGet("me")]
         [Authorize]
