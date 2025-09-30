@@ -38,16 +38,24 @@ namespace FinancialControl.Controllers
                 return Unauthorized();
             }
         }
+
         [HttpGet("me")]
         [Authorize]
-        public IActionResult Me()
+        public async Task<IActionResult> Me()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var email = User.FindFirstValue(ClaimTypes.Email);
+            var name = User.FindFirstValue(ClaimTypes.Name);
+
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized(new { message = "Token inválido" });
+            }
 
             return Ok(new
             {
                 Id = userId,
+                Name = name,
                 Email = email
             });
         }

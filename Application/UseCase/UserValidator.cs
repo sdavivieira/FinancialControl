@@ -33,21 +33,23 @@ namespace FinancialControl.Application.UseCase
 
             var claims = new[]
             {
-                    new Claim(ClaimTypes.NameIdentifier, userLogin.Name),
-                    new Claim(ClaimTypes.Email, user.Email)
-                };
+        new Claim(ClaimTypes.NameIdentifier, userLogin.Id.ToString()), 
+        new Claim(ClaimTypes.Name, userLogin.Name),     
+        new Claim(ClaimTypes.Email, userLogin.Email), 
+        new Claim(JwtRegisteredClaimNames.Sub, userLogin.Id.ToString()),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+    };
 
             var token = new JwtSecurityToken(
                 issuer: issuer,
                 audience: audience,
-                claims: claims,        
-                expires: DateTime.Now.AddMinutes(120),
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(120), 
                 signingCredentials: credentials
             );
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
 
         public async Task<bool> IsValid(LoginRequest user)
         {
