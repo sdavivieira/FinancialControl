@@ -51,5 +51,13 @@ namespace FinancialControl.Controllers
                 Email = email
             });
         }
+
+        [HttpPost("logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("jwt");
+            return Ok(new { message = "Logout successful" });
+        }
+
     }
 }

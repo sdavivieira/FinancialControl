@@ -9,7 +9,11 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -70,10 +74,14 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontendLocalhost", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins(
+                "http://localhost:3000",
+                "http://localhost:5173"
+              )
               .AllowAnyMethod()
               .AllowAnyHeader()
-              .AllowCredentials(); 
+              .AllowCredentials()
+              .WithExposedHeaders("Set-Cookie"); 
     });
 });
 
@@ -81,8 +89,7 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseHttpsRedirection();
-
+app.UseCors("AllowFrontendLocalhost");
 app.Use(async (context, next) =>
 {
     if (context.Request.Headers.ContainsKey("Authorization"))
@@ -97,7 +104,6 @@ app.Use(async (context, next) =>
 
     await next();
 });
-app.UseCors("AllowFrontendLocalhost");
 app.UseAuthentication();
 app.UseAuthorization();
 
