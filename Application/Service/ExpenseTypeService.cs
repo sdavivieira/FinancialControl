@@ -76,6 +76,7 @@ namespace FinancialControl.Application.Service
             {
                 Id = x.Id,
                 Name = x.Name,
+                InicialValue = x.InicialValue,
             });
 
             return new OperationResult<IEnumerable<ExpenseTypeResponse>>
