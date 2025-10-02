@@ -30,9 +30,10 @@ namespace FinancialControl.Application.Service
 
                 var newexpense = new Expense()
                 {
-                    Date = expense.Date,
+                    Date = DateTime.UtcNow,
                     ExpenseTypeId = expense.ExpenseTypeId,
-                    UserId = userExist.Id
+                    UserId = userExist.Id,
+                    Value = expense.Value,
                 };
 
                 await _expenseWriteRepository.Add(newexpense);
