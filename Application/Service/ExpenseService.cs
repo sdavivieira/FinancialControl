@@ -21,11 +21,11 @@ namespace FinancialControl.Application.Service
             _expenseReadRepository = expenseReadRepository;
             _userReadRepository = userReadRepository;
         }
-        public async Task<OperationResult<ExpenseResponse>> Create(ExpenseRequest expense, string email)
+        public async Task<OperationResult<ExpenseResponse>> Create(ExpenseRequest expense, int userId)
         {
             try
             {
-                IEnumerable<User> users = await _userReadRepository.GetAllAsync(x => x.Email == email);
+                IEnumerable<User> users = await _userReadRepository.GetAllAsync(x => x.Id == userId);
                 var userExist = users.FirstOrDefault();
 
                 var newexpense = new Expense()

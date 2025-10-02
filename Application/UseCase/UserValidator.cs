@@ -28,14 +28,14 @@ namespace FinancialControl.Application.UseCase
 
             var issuer = _config["Jwt:Issuer"];
             var audience = _config["Jwt:Audience"];
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]);
+            var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256);
 
             var claims = new[]
             {
-        new Claim(ClaimTypes.NameIdentifier, userLogin.Id.ToString()), 
-        new Claim(ClaimTypes.Name, userLogin.Name),     
-        new Claim(ClaimTypes.Email, userLogin.Email), 
+        new Claim("id", userLogin.Id.ToString()),
+        new Claim("name", userLogin.Name),
+        new Claim("email", userLogin.Email),
         new Claim(JwtRegisteredClaimNames.Sub, userLogin.Id.ToString()),
         new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
     };
@@ -44,7 +44,7 @@ namespace FinancialControl.Application.UseCase
                 issuer: issuer,
                 audience: audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(120), 
+                expires: DateTime.UtcNow.AddMinutes(120),
                 signingCredentials: credentials
             );
 

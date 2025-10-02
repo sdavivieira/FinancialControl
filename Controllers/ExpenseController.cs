@@ -19,11 +19,12 @@ namespace FinancialControl.Controllers
 
         [Authorize]
         [HttpPost("register")]
-        public async Task<IActionResult>RegisterExpense(ExpenseRequest expense)
+        public async Task<IActionResult> RegisterExpense(ExpenseRequest expense)
         {
-            System.Security.Claims.ClaimsPrincipal user = HttpContext.User;
-            string email = user.FindFirst("email")?.Value;
-            OperationResult<ExpenseResponse> response = await _expenseService.Create(expense, email);
+            var user = HttpContext.User;
+            int userId = int.Parse((user.Claims.FirstOrDefault(c => c.Type == "id")?.Value!));
+             
+            var response = await _expenseService.Create(expense, userId);
 
             return Ok(response);
         }
