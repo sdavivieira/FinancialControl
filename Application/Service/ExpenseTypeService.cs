@@ -77,6 +77,7 @@ namespace FinancialControl.Application.Service
                 Id = x.Id,
                 Name = x.Name,
                 InicialValue = x.InicialValue,
+                IsFixed = x.IsFixed
             });
 
             return new OperationResult<IEnumerable<ExpenseTypeResponse>>
