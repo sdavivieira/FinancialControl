@@ -61,9 +61,20 @@ namespace FinancialControl.Controllers
         [HttpPost("logout")]
         public IActionResult Logout()
         {
-            Response.Cookies.Delete("jwt");
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Path = "/", 
+                Expires = DateTime.UtcNow.AddDays(-1) 
+            };
+
+            Response.Cookies.Append("jwt", "", cookieOptions);
+
             return Ok(new { message = "Logout successful" });
         }
+
 
     }
 }
