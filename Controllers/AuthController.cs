@@ -1,4 +1,5 @@
 ﻿using FinancialControl.Application.Interface;
+using FinancialControl.Domain.Models;
 using FinancialControl.ResponseRequest.Request.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -42,8 +43,9 @@ namespace FinancialControl.Controllers
         public async Task<IActionResult> Me()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var user = HttpContext.User;
             var email = User.FindFirstValue(ClaimTypes.Email);
-            var name = User.FindFirstValue(ClaimTypes.Name);
+            var name = user.FindFirst("name")?.Value!;
 
             if (string.IsNullOrEmpty(userId))
             {
