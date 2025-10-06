@@ -11,14 +11,21 @@ namespace FinancialControl.Application.Service
     {
         private readonly IExpenseTypeWriteRepository _expenseTypeWriteRepository;
         private readonly IExpenseTypeReadRepository _expenseTypeReadRepository;
+        private readonly IExpenseWriteRepository _expenseWriteRepository; 
+        private readonly IExpenseReadRepository _expenseReadRepository; 
 
         public ExpenseTypeService(
             IExpenseTypeWriteRepository expenseTypeWriteRepository,
-            IExpenseTypeReadRepository expenseTypeReadRepository)
+            IExpenseTypeReadRepository expenseTypeReadRepository,
+            IExpenseWriteRepository expenseWriteRepository,     
+            IExpenseReadRepository expenseReadRepository)       
         {
             _expenseTypeWriteRepository = expenseTypeWriteRepository;
             _expenseTypeReadRepository = expenseTypeReadRepository;
+            _expenseWriteRepository = expenseWriteRepository;   
+            _expenseReadRepository = expenseReadRepository;     
         }
+
 
         public async Task<OperationResult<ExpenseTypeResponse>> Create(ExpenseTypeRequest expense)
         {
@@ -138,10 +145,11 @@ namespace FinancialControl.Application.Service
         {
             try
             {
-                var existing = (await _expenseTypeReadRepository.GetAllAsync())
-                                .FirstOrDefault(x => x.Id == id);
+                // Verifica se o ExpenseType existe
+                var existingType = (await _expenseTypeReadRepository.GetAllAsync())
+                                    .FirstOrDefault(x => x.Id == id);
 
-                if (existing == null)
+                if (existingType == null)
                     return new OperationResult<bool>
                     {
                         Success = false,
@@ -149,12 +157,23 @@ namespace FinancialControl.Application.Service
                         Data = false
                     };
 
-                await _expenseTypeWriteRepository.Delete(existing);
+                // Busca todos os Expenses relacionados a esse tipo
+                var relatedExpenses = (await _expenseReadRepository.GetAllAsync())
+                                        .Where(e => e.ExpenseTypeId == id);
+
+                // Deleta todos os Expenses relacionados
+                foreach (var expense in relatedExpenses)
+                {
+                    await _expenseWriteRepository.Delete(expense);
+                }
+
+                // Deleta o ExpenseType
+                await _expenseTypeWriteRepository.Delete(existingType);
 
                 return new OperationResult<bool>
                 {
                     Success = true,
-                    Message = "Tipo de despesa deletado com sucesso",
+                    Message = "Tipo de despesa e todos os gastos relacionados deletados com sucesso",
                     Data = true
                 };
             }
@@ -168,5 +187,6 @@ namespace FinancialControl.Application.Service
                 };
             }
         }
+
     }
 }
