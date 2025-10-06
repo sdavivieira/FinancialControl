@@ -37,5 +37,36 @@ namespace FinancialControl.Controllers
 
             return Ok(response);
         }
+
+        [Authorize]
+        [HttpPut("expense/update/{id}")]
+        public async Task<IActionResult> UpdateExpense(int id, ExpenseRequest expense)
+        {
+            var user = HttpContext.User;
+            int userId = int.Parse((user.Claims.FirstOrDefault(c => c.Type == "id")?.Value!));
+
+            var response = await _expenseService.Update(id, expense, userId);
+
+            if (response.Success)
+                return Ok(response);
+            else
+                return BadRequest(response);
+        }
+
+        [Authorize]
+        [HttpDelete("expense/delete/{id}")]
+        public async Task<IActionResult> DeleteExpense(int id)
+        {
+            var user = HttpContext.User;
+            int userId = int.Parse((user.Claims.FirstOrDefault(c => c.Type == "id")?.Value!));
+
+            var response = await _expenseService.Delete(id, userId);
+
+            if (response.Success)
+                return Ok(response);
+            else
+                return BadRequest(response);
+        }
+
     }
 }

@@ -86,5 +86,43 @@ namespace FinancialControl.Application.Service
                 };
             
         }
+        public async Task<OperationResult<ExpenseResponse>> Update(int id, ExpenseRequest expense, int userId)
+        {
+            try
+            {
+                var existingExpense = (await _expenseReadRepository.GetAllAsync(x => x.Id == id && x.UserId == userId)).FirstOrDefault();
+                if (existingExpense == null)
+                    return new OperationResult<ExpenseResponse> { Success = false, Message = "Despesa não encontrada." };
+
+                existingExpense.Value = expense.Value;
+                existingExpense.ExpenseTypeId = expense.ExpenseTypeId;
+
+                await _expenseWriteRepository.Update(existingExpense);
+
+                return new OperationResult<ExpenseResponse> { Success = true, Message = "Despesa atualizada com sucesso." };
+            }
+            catch
+            {
+                return new OperationResult<ExpenseResponse> { Success = false, Message = "Erro ao atualizar despesa." };
+            }
+        }
+
+        public async Task<OperationResult<bool>> Delete(int id, int userId)
+        {
+            try
+            {
+                var existingExpense = (await _expenseReadRepository.GetAllAsync(x => x.Id == id && x.UserId == userId)).FirstOrDefault();
+                if (existingExpense == null)
+                    return new OperationResult<bool> { Success = false, Message = "Despesa não encontrada.", Data = false };
+
+                await _expenseWriteRepository.Delete(existingExpense);
+
+                return new OperationResult<bool> { Success = true, Message = "Despesa deletada com sucesso.", Data = true };
+            }
+            catch
+            {
+                return new OperationResult<bool> { Success = false, Message = "Erro ao deletar despesa.", Data = false };
+            }
+        }
     }
 }

@@ -8,5 +8,8 @@ namespace FinancialControl.Application.Interface
     {
         Task<OperationResult<ExpenseTypeResponse>> Create(ExpenseTypeRequest expense);
         Task<OperationResult<IEnumerable<ExpenseTypeResponse>>> ExpenseTypes();
+        Task<OperationResult<ExpenseTypeResponse>> Update(int id, ExpenseTypeRequest expense);
+        Task<OperationResult<bool>> Delete(int id);
+
     }
 }

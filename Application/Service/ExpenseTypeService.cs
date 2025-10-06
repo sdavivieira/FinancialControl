@@ -12,31 +12,33 @@ namespace FinancialControl.Application.Service
         private readonly IExpenseTypeWriteRepository _expenseTypeWriteRepository;
         private readonly IExpenseTypeReadRepository _expenseTypeReadRepository;
 
-        public ExpenseTypeService(IExpenseTypeWriteRepository expenseWriteRepository,
-            IExpenseTypeReadRepository expenseReadRepository)
+        public ExpenseTypeService(
+            IExpenseTypeWriteRepository expenseTypeWriteRepository,
+            IExpenseTypeReadRepository expenseTypeReadRepository)
         {
-            _expenseTypeWriteRepository = expenseWriteRepository;
-            _expenseTypeReadRepository = expenseReadRepository;
+            _expenseTypeWriteRepository = expenseTypeWriteRepository;
+            _expenseTypeReadRepository = expenseTypeReadRepository;
         }
+
         public async Task<OperationResult<ExpenseTypeResponse>> Create(ExpenseTypeRequest expense)
         {
             try
             {
-
-                ExpenseType newexpense = new ExpenseType
-                {
-                    Name = expense.Name,
-                    InicialValue = expense.InicialValue,
-                    IsFixed = expense.IsFixed,
-                };
-
-                await _expenseTypeWriteRepository.Add(newexpense);
-
-                var response = new ExpenseTypeResponse
+                var newExpense = new ExpenseType
                 {
                     Name = expense.Name,
                     InicialValue = expense.InicialValue,
                     IsFixed = expense.IsFixed
+                };
+
+                await _expenseTypeWriteRepository.Add(newExpense);
+
+                var response = new ExpenseTypeResponse
+                {
+                    Id = newExpense.Id,
+                    Name = newExpense.Name,
+                    InicialValue = newExpense.InicialValue,
+                    IsFixed = newExpense.IsFixed
                 };
 
                 return new OperationResult<ExpenseTypeResponse>
@@ -46,33 +48,30 @@ namespace FinancialControl.Application.Service
                     Data = response
                 };
             }
-                catch (Exception ex)
+            catch
+            {
+                return new OperationResult<ExpenseTypeResponse>
                 {
-                    return new OperationResult<ExpenseTypeResponse>()
-                    {
-                        Success = false,
-                        Message = "Erro ao realizar Registro!",
-                        Data = null
-                    };
-                }
-
+                    Success = false,
+                    Message = "Erro ao realizar registro!",
+                    Data = null
+                };
             }
+        }
 
         public async Task<OperationResult<IEnumerable<ExpenseTypeResponse>>> ExpenseTypes()
         {
-            IEnumerable<ExpenseType> result =  await _expenseTypeReadRepository.GetAllAsync();
+            var result = await _expenseTypeReadRepository.GetAllAsync();
 
             if (!result.Any())
-            {
                 return new OperationResult<IEnumerable<ExpenseTypeResponse>>
                 {
                     Success = false,
-                    Message = "Não Encontrado Registro",
-                    Data =  new List<ExpenseTypeResponse>() 
+                    Message = "Não encontrado registro",
+                    Data = new List<ExpenseTypeResponse>()
                 };
-            }
 
-            IEnumerable<ExpenseTypeResponse> response = result.Select(x => new ExpenseTypeResponse
+            var response = result.Select(x => new ExpenseTypeResponse
             {
                 Id = x.Id,
                 Name = x.Name,
@@ -83,9 +82,91 @@ namespace FinancialControl.Application.Service
             return new OperationResult<IEnumerable<ExpenseTypeResponse>>
             {
                 Success = true,
-                Message = "Encontrado Registros",
+                Message = "Registros encontrados",
                 Data = response
             };
+        }
+
+        public async Task<OperationResult<ExpenseTypeResponse>> Update(int id, ExpenseTypeRequest expense)
+        {
+            try
+            {
+                var existing = (await _expenseTypeReadRepository.GetAllAsync())
+                                .FirstOrDefault(x => x.Id == id);
+
+                if (existing == null)
+                    return new OperationResult<ExpenseTypeResponse>
+                    {
+                        Success = false,
+                        Message = "Tipo de despesa não encontrado",
+                        Data = null
+                    };
+
+                existing.Name = expense.Name;
+                existing.InicialValue = expense.InicialValue;
+                existing.IsFixed = expense.IsFixed;
+
+                await _expenseTypeWriteRepository.Update(existing);
+
+                var response = new ExpenseTypeResponse
+                {
+                    Id = existing.Id,
+                    Name = existing.Name,
+                    InicialValue = existing.InicialValue,
+                    IsFixed = existing.IsFixed
+                };
+
+                return new OperationResult<ExpenseTypeResponse>
+                {
+                    Success = true,
+                    Message = "Tipo de despesa atualizado com sucesso",
+                    Data = response
+                };
+            }
+            catch
+            {
+                return new OperationResult<ExpenseTypeResponse>
+                {
+                    Success = false,
+                    Message = "Erro ao atualizar tipo de despesa",
+                    Data = null
+                };
+            }
+        }
+
+        public async Task<OperationResult<bool>> Delete(int id)
+        {
+            try
+            {
+                var existing = (await _expenseTypeReadRepository.GetAllAsync())
+                                .FirstOrDefault(x => x.Id == id);
+
+                if (existing == null)
+                    return new OperationResult<bool>
+                    {
+                        Success = false,
+                        Message = "Tipo de despesa não encontrado",
+                        Data = false
+                    };
+
+                await _expenseTypeWriteRepository.Delete(existing);
+
+                return new OperationResult<bool>
+                {
+                    Success = true,
+                    Message = "Tipo de despesa deletado com sucesso",
+                    Data = true
+                };
+            }
+            catch
+            {
+                return new OperationResult<bool>
+                {
+                    Success = false,
+                    Message = "Erro ao deletar tipo de despesa",
+                    Data = false
+                };
+            }
         }
     }
 }
