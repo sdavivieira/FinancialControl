@@ -9,18 +9,23 @@ namespace FinancialControl.Application.Service
     {
         private readonly IExpenseReadRepository _expenseReadRepository;
         private readonly IExpenseTypeReadRepository _expenseTypeReadRepository;
+        private readonly IExpenseWriteRepository _expenseWriteRepository;
+        private readonly IExpenseTypeWriteRepository _expenseTypeWriteRepository;
 
         public ReportService(
             IExpenseReadRepository expenseReadRepository,
-            IExpenseTypeReadRepository expenseTypeReadRepository)
+            IExpenseTypeReadRepository expenseTypeReadRepository,
+            IExpenseTypeWriteRepository expenseTypeWriteRepository,
+            IExpenseWriteRepository expenseWriteRepository)
         {
             _expenseReadRepository = expenseReadRepository;
             _expenseTypeReadRepository = expenseTypeReadRepository;
+            _expenseWriteRepository = expenseWriteRepository;
+            _expenseTypeWriteRepository = expenseTypeWriteRepository;
         }
 
         public async Task<byte[]> GetExpensesReport()
         {
-            // 1️⃣ Pegar dados do banco
             var expenses = await _expenseReadRepository.GetAllWithExpenseType();
             var expenseTypes = await _expenseTypeReadRepository.GetAllAsync();
 
@@ -29,7 +34,6 @@ namespace FinancialControl.Application.Service
 
             var typesDict = expenseTypes.ToDictionary(x => x.Name, x => x);
 
-            // 2️⃣ Montar lista combinada para exportação
             var exportData = expenses.Select(e =>
             {
                 typesDict.TryGetValue(e.ExpenseType.Name, out var type);
@@ -39,11 +43,12 @@ namespace FinancialControl.Application.Service
                     Tipo = type?.Name ?? "",
                     ValorInicial = type?.InicialValue ?? 0m,
                     Valor = e.Value,
-                    Fixa = type?.IsFixed ?? false
+                    Fixa = type?.IsFixed ?? false,
+                    ExpenseEntity = e,
+                    ExpenseTypeEntity = type
                 };
             }).ToList();
 
-            // 3️⃣ Criar DataTable
             var dt = new DataTable();
             dt.Columns.Add("Despesa", typeof(string));
             dt.Columns.Add("Tipo", typeof(string));
@@ -62,23 +67,32 @@ namespace FinancialControl.Application.Service
                 );
             }
 
-            // 4️⃣ Gerar Excel com ClosedXML
+            // 4️⃣ Deletar todos os Expenses
+            foreach (var exp in exportData.Select(x => x.ExpenseEntity))
+            {
+                await _expenseWriteRepository.Delete(exp);
+            }
+
+            // 5️⃣ Deletar ExpenseTypes que não são fixos
+            var typesToDelete = exportData
+                .Select(x => x.ExpenseTypeEntity)
+                .Where(x => x != null && !x.IsFixed)
+                .Distinct()
+                .ToList();
+
+            foreach (var type in typesToDelete)
+            {
+                await _expenseTypeWriteRepository.Delete(type);
+            }
+
+
             using (var wb = new XLWorkbook())
             {
                 var ws = wb.Worksheets.Add(dt, "Despesas");
-
-                // Cabeçalho em negrito
                 ws.Row(1).Style.Font.Bold = true;
-
-                // Ajustar largura automática
                 ws.Columns().AdjustToContents();
-
-                // Formatar valores monetários
-                ws.Column("C").Style.NumberFormat.Format = "#,##0.00"; // Valor Inicial
-                ws.Column("D").Style.NumberFormat.Format = "#,##0.00"; // Valor
-
-                // Filtro automático
-                //ws.RangeUsed().SetAutoFilter();
+                ws.Column("C").Style.NumberFormat.Format = "#,##0.00";
+                ws.Column("D").Style.NumberFormat.Format = "#,##0.00";
 
                 using (var stream = new MemoryStream())
                 {
