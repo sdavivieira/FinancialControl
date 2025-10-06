@@ -28,6 +28,7 @@ namespace FinancialControl.Infrastructure
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IExpenseService, ExpenseService>();
             services.AddScoped<IExpenseTypeService, ExpenseTypeService>();
+            services.AddScoped<IReportService, ReportService>();
 
             services.AddScoped<IReadRepository<User>, GenericRepository<User>>();
             services.AddScoped<IWriteRepository<User>, GenericRepository<User>>();
