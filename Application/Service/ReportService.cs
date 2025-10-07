@@ -9,22 +9,22 @@ namespace FinancialControl.Application.Service
     {
         private readonly IExpenseReadRepository _expenseReadRepository;
         private readonly IExpenseTypeReadRepository _expenseTypeReadRepository;
-        private readonly IExpenseWriteRepository _expenseWriteRepository;
-        private readonly IExpenseTypeWriteRepository _expenseTypeWriteRepository;
+        private readonly IExpenseService _expenseService;
+        private readonly IExpenseTypeService _expenseTypeService;
 
         public ReportService(
             IExpenseReadRepository expenseReadRepository,
             IExpenseTypeReadRepository expenseTypeReadRepository,
-            IExpenseTypeWriteRepository expenseTypeWriteRepository,
-            IExpenseWriteRepository expenseWriteRepository)
+            IExpenseTypeService ExpenseTypeService,
+            IExpenseService expenseService)
         {
             _expenseReadRepository = expenseReadRepository;
             _expenseTypeReadRepository = expenseTypeReadRepository;
-            _expenseWriteRepository = expenseWriteRepository;
-            _expenseTypeWriteRepository = expenseTypeWriteRepository;
+            _expenseService = expenseService;
+            _expenseTypeService = ExpenseTypeService;
         }
 
-        public async Task<byte[]> GetExpensesReport()
+        public async Task<byte[]> GetExpensesReport(string userId)
         {
             var expenses = await _expenseReadRepository.GetAllWithExpenseType();
             var expenseTypes = await _expenseTypeReadRepository.GetAllAsync();
@@ -67,13 +67,11 @@ namespace FinancialControl.Application.Service
                 );
             }
 
-            // 4️⃣ Deletar todos os Expenses
             foreach (var exp in exportData.Select(x => x.ExpenseEntity))
             {
-                await _expenseWriteRepository.Delete(exp);
+                await _expenseService.Delete(exp.Id, int.Parse(userId));
             }
 
-            // 5️⃣ Deletar ExpenseTypes que não são fixos
             var typesToDelete = exportData
                 .Select(x => x.ExpenseTypeEntity)
                 .Where(x => x != null && !x.IsFixed)
@@ -82,7 +80,7 @@ namespace FinancialControl.Application.Service
 
             foreach (var type in typesToDelete)
             {
-                await _expenseTypeWriteRepository.Delete(type);
+                await _expenseTypeService.Delete(type.Id);
             }
 
 

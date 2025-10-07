@@ -2,7 +2,7 @@
 {
     public interface IReportService
     {
-        Task<byte[]> GetExpensesReport();
+        Task<byte[]> GetExpensesReport(string? userId);
 
     }
 }

@@ -145,7 +145,6 @@ namespace FinancialControl.Application.Service
         {
             try
             {
-                // Verifica se o ExpenseType existe
                 var existingType = (await _expenseTypeReadRepository.GetAllAsync())
                                     .FirstOrDefault(x => x.Id == id);
 
@@ -157,17 +156,14 @@ namespace FinancialControl.Application.Service
                         Data = false
                     };
 
-                // Busca todos os Expenses relacionados a esse tipo
                 var relatedExpenses = (await _expenseReadRepository.GetAllAsync())
                                         .Where(e => e.ExpenseTypeId == id);
 
-                // Deleta todos os Expenses relacionados
                 foreach (var expense in relatedExpenses)
                 {
                     await _expenseWriteRepository.Delete(expense);
                 }
 
-                // Deleta o ExpenseType
                 await _expenseTypeWriteRepository.Delete(existingType);
 
                 return new OperationResult<bool>

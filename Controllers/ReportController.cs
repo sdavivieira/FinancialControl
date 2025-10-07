@@ -1,5 +1,6 @@
 ﻿using FinancialControl.Application.Interface;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace FinancialControl.Controllers
 {
@@ -14,7 +15,9 @@ namespace FinancialControl.Controllers
         [HttpGet("ExportExcel")]
         public async Task<IActionResult> ExportExcel()
         {
-            var fileBytes = await _reportService.GetExpensesReport();
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var fileBytes = await _reportService.GetExpensesReport(userId);
 
             if (fileBytes.Length == 0)
                 return NotFound("Não há dados para exportar.");
